@@ -11,5 +11,6 @@
     "url": "https://github.com/willarmiros/test-package-lock-repo/packages/core"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "gitHead": "e4e3a24af7787d01dccf3ebfc8471cc9a517eb78"
 }
