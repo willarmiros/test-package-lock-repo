@@ -11,8 +11,8 @@
     "url": "git+https://github.com/willarmiros/test-package-lock-repo.git"
   },
   "dependencies": {
-    "test-package-lock-repo-core": "^1.0.6",
-    "test-package-lock-repo-express": "^1.0.6"
+    "test-package-lock-repo-core": "1.0.6",
+    "test-package-lock-repo-express": "1.0.6"
   },
   "author": "",
   "license": "ISC",
