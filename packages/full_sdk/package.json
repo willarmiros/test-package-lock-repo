@@ -1,6 +1,6 @@
 {
   "name": "test-package-lock-repo",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "\"Full SDK for test lerna repo\"",
   "main": "index.js",
   "scripts": {
@@ -11,8 +11,8 @@
     "url": "git+https://github.com/willarmiros/test-package-lock-repo.git"
   },
   "dependencies": {
-    "test-package-lock-repo-core": "^1.0.2",
-    "test-package-lock-repo-express": "^1.0.2"
+    "test-package-lock-repo-core": "^1.0.3",
+    "test-package-lock-repo-express": "^1.0.3"
   },
   "author": "",
   "license": "ISC",
