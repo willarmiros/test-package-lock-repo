@@ -10,6 +10,10 @@
     "type": "git",
     "url": "https://github.com/willarmiros/test-package-lock-repo/packages/core"
   },
+  "dependencies": {
+    "atomic-batcher": "^1.0.1",
+    "cls-hooked": "^4.2.2",
+  },
   "author": "",
   "license": "ISC",
   "gitHead": "e4e3a24af7787d01dccf3ebfc8471cc9a517eb78"
