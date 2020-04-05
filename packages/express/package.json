@@ -1,6 +1,6 @@
 {
   "name": "test-package-lock-repo-express",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "\"Test express for my lerna repo\"",
   "main": "index.js",
   "scripts": {
@@ -11,10 +11,10 @@
     "url": "git+https://github.com/willarmiros/test-package-lock-repo.git"
   },
   "peerDependencies": {
-    "test-package-lock-repo-core": "^1.0.1",
+    "test-package-lock-repo-core": "^1.0.2",
   },
   "devDependencies": {
-    "test-package-lock-repo-core": "^1.0.1",
+    "test-package-lock-repo-core": "^1.0.2",
   },
   "author": "",
   "license": "ISC",
