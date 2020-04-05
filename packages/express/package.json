@@ -1,6 +1,6 @@
 {
   "name": "test-package-lock-repo-express",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "\"Test express for my lerna repo\"",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "test-package-lock-repo-core": "^1.0.5"
   },
   "devDependencies": {
-    "test-package-lock-repo-core": "^1.0.5"
+    "test-package-lock-repo-core": "^1.0.6"
   },
   "author": "",
   "license": "ISC",
