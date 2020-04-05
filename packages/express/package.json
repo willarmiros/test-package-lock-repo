@@ -1,6 +1,6 @@
 {
   "name": "test-package-lock-repo-express",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "\"Test express for my lerna repo\"",
   "main": "index.js",
   "scripts": {
