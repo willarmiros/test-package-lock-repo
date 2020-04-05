@@ -11,10 +11,11 @@
     "url": "git+https://github.com/willarmiros/test-package-lock-repo.git"
   },
   "peerDependencies": {
-    "test-package-lock-repo-core": "^1.0.8"
+    "test-package-lock-repo-core": "^1.0.10"
   },
   "devDependencies": {
-    "test-package-lock-repo-core": "1.0.9"
+    "test-package-lock-repo-core": "^1.0.9",
+    "chai": "^3.5.0"
   },
   "author": "",
   "license": "ISC",
