@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 1.4.0
+
+
+    at makeError (/home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/execa/index.js:174:9)
+    at Function.module.exports.sync (/home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/execa/index.js:338:15)
+    at Object.lastTag (/home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/lerna-changelog/lib/git.js:28:18)
+    at Changelog.<anonymous> (/home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/lerna-changelog/lib/changelog.js:31:56)
+    at Generator.next (<anonymous>)
+    at /home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/lerna-changelog/lib/changelog.js:8:71
+    at new Promise (<anonymous>)
+    at __awaiter (/home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/lerna-changelog/lib/changelog.js:4:12)
+    at Changelog.createMarkdown (/home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/lerna-changelog/lib/changelog.js:30:16)
+    at Object.<anonymous> (/home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/lerna-changelog/lib/cli.js:69:64)
+    at Generator.next (<anonymous>)
+    at /home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/lerna-changelog/lib/cli.js:8:71
+    at new Promise (<anonymous>)
+    at __awaiter (/home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/lerna-changelog/lib/cli.js:4:12)
+    at Object.run (/home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/lerna-changelog/lib/cli.js:18:12)
+    at Object.<anonymous> (/home/runner/work/test-package-lock-repo/test-package-lock-repo/node_modules/lerna-changelog/bin/cli.js:7:5)
+
 ## 0.13.0
 
 #### :bug: Bug Fix
