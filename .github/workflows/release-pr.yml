@@ -50,7 +50,10 @@ jobs:
         id: generate-changelog
         env:
           GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "::set-output name=CHANGELOG::$(npx lerna-changelog | sed '1,3d')"
+        run: |
+          npx lerna-changelog
+          npx lerna-changelog | sed '1,3d'
+          echo "::set-output name=CHANGELOG::$(npx lerna-changelog | sed '1,3d')"
 
       - name: Create GitHub Release
         id: make-release
