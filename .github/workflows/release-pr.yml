@@ -43,7 +43,7 @@ jobs:
         run: |
           npm install
           lerna publish ${{ github.event.inputs.version }} --skip-npm --no-git-tag-version --no-push --yes
-          npm run bootstrap
+          lerna bootstrap --no-ci
 
       - name: Update Changelog
         env:
