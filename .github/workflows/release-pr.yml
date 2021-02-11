@@ -35,16 +35,11 @@ jobs:
             propagators/*/node_modules
           key: ${{ runner.os }}-${{ matrix.container }}-${{ hashFiles('**/package.json') }}
 
-      - name: Setup lerna
-        run: |
-          npm install --global lerna
-          npm install --global lerna-changelog
-
       # Bump versions in all package.json
-      - name: Prepare Releasee
+      - name: Prepare Release
         run: |
           npm install
-          lerna publish ${{ github.event.inputs.version }} --skip-npm --no-git-tag-version --no-push --yes
+          npx lerna publish from-package ${{ github.event.inputs.version }} --skip-npm --no-git-tag-version --no-push --yes
           npx lerna bootstrap --no-ci
 
       - name: Update Changelog
