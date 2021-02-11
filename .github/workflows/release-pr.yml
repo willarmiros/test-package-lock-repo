@@ -1,0 +1,67 @@
+name: Release OTel JS Contrib
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The semver-compliant version to tag the release with, e.g. 1.2.3, 1.0.0-rc.1
+        required: true
+
+jobs:
+  publish_otel_contrib:
+    name: Publish to GitHub and NPM
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+
+      - name: Setup lerna
+        run: |
+          npm install --global lerna
+          npm install --global lerna-changelog
+
+      # Bump versions in all package.json
+      - name: Prepare Releasee
+        run: |
+          npm install
+          lerna publish ${{ github.event.inputs.version }} --skip-npm --no-git-tag-version --no-push --yes
+          npm run bootstrap
+
+      - name: Update Changelog
+        env:
+          GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
+        run: ./scripts/changelog-update.sh ${{ github.event.inputs.version }}
+
+      # Generates changelog without the "Unreleased" portion
+      - name: Generate Changelog
+        id: generate-changelog
+        env:
+          GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "::set-output name=CHANGELOG::$(lerna-changelog | sed '1,3d')"
+
+      - name: Create GitHub Release
+        id: make-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: 'release-proposal'
+          release_name: 'v${{ github.event.inputs.version }} Release'
+          body: ${{ steps.generate-changelog.outputs.CHANGELOG }}
+          draft: true
+          prerelease: false
+
+      # Make PR with version bumps and changelog update. Merging this PR triggers publish workflow.
+      # TODO: add link to second workflow
+      - name: Create Release PR
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: release/${{ github.event.inputs.version }}
+          commit-message: "chore: ${{ github.event.inputs.version }} release proposal"
+          title: "chore: ${{ github.event.inputs.version }} release proposal"
+          body: ${{ steps.make-release.outputs.html_url }}
+          delete-branch: true
