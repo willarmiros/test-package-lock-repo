@@ -58,7 +58,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 'release-proposal'
+          tag_name: 'v${{ github.event.inputs.version }}'
+          commitish: main
           release_name: 'v${{ github.event.inputs.version }} Release'
           body: ${{ steps.generate-changelog.outputs.CHANGELOG }}
           draft: true
@@ -70,7 +71,7 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           branch: release/${{ github.event.inputs.version }}
-          commit-message: "chore: ${{ github.event.inputs.version }} release proposal"
-          title: "chore: ${{ github.event.inputs.version }} release proposal"
+          commit-message: 'chore: ${{ github.event.inputs.version }} release proposal'
+          title: 'chore: ${{ github.event.inputs.version }} release proposal'
           body: ${{ steps.make-release.outputs.html_url }}
           delete-branch: true
