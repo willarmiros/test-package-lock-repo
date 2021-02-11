@@ -19,11 +19,6 @@ jobs:
         with:
           node-version: '14.x'
 
-      - name: Setup lerna
-        run: |
-          npm install --global lerna
-          npm install --global lerna-changelog
-
       - name: Cache Dependencies
         uses: actions/cache@v2
         with:
@@ -42,8 +37,8 @@ jobs:
       - name: Prepare Releasee
         run: |
           npm install
-          lerna publish ${{ github.event.inputs.version }} --skip-npm --no-git-tag-version --no-push --yes
-          lerna bootstrap --no-ci
+          npx lerna publish ${{ github.event.inputs.version }} --skip-npm --no-git-tag-version --no-push --yes
+          npx lerna bootstrap --no-ci
 
       - name: Update Changelog
         env:
@@ -55,7 +50,7 @@ jobs:
         id: generate-changelog
         env:
           GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "::set-output name=CHANGELOG::$(lerna-changelog | sed '1,3d')"
+        run: echo "::set-output name=CHANGELOG::$(npx lerna-changelog | sed '1,3d')"
 
       - name: Create GitHub Release
         id: make-release
