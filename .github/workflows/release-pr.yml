@@ -24,6 +24,20 @@ jobs:
           npm install --global lerna
           npm install --global lerna-changelog
 
+      - name: Cache Dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            package-lock.json
+            detectors/node/*/node_modules
+            metapackages/*/node_modules
+            packages/*/node_modules
+            plugins/node/*/node_modules
+            plugins/web/*/node_modules
+            propagators/*/node_modules
+          key: ${{ runner.os }}-${{ matrix.container }}-${{ hashFiles('**/package.json') }}
+
       # Bump versions in all package.json
       - name: Prepare Releasee
         run: |
