@@ -7,8 +7,8 @@ on:
         required: true
 
 jobs:
-  publish_otel_contrib:
-    name: Publish to GitHub and NPM
+  create_release_pr:
+    name: Create Release PR and Draft Release
     runs-on: ubuntu-latest
     steps: 
       - name: Checkout Repository
@@ -69,7 +69,7 @@ jobs:
           prerelease: false
 
       # Make PR with version bumps and changelog update. Merging this PR triggers publish workflow.
-      # TODO: add link to second workflow
+      # See: https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/.github/workflows/publish.yml
       - name: Create Release PR
         uses: peter-evans/create-pull-request@v3
         with:
