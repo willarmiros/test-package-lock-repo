@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 1.4.0
+
+#### :rocket: Enhancement
+* [#1](https://github.com/willarmiros/test-package-lock-repo/pull/1) inital setup for workflow test ([@willarmiros](https://github.com/willarmiros))
+
+#### Committers: 1
+- William Armiros ([@willarmiros](https://github.com/willarmiros))
+
 ## 0.13.0
 
 #### :bug: Bug Fix
