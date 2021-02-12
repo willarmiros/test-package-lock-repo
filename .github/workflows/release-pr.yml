@@ -47,8 +47,8 @@ jobs:
           GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
         run: ./scripts/changelog-update.sh ${{ github.event.inputs.version }}
 
-      # Generates changelog without the "Unreleased" portion
-      - name: Generate Changelog
+      # Generates changelog without the "Unreleased" portion for use in release body
+      - name: Generate Release Body
         id: generate-changelog
         env:
           GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
