@@ -39,7 +39,7 @@ jobs:
       - name: Prepare Release
         run: |
           npm install
-          npx lerna publish from-package ${{ github.event.inputs.version }} --skip-npm --no-git-tag-version --no-push --yes
+          npx lerna publish ${{ github.event.inputs.version }} --force-publish --skip-npm --no-git-tag-version --no-push --yes
           npx lerna bootstrap --no-ci
 
       - name: Update Changelog
