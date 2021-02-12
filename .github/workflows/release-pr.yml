@@ -16,44 +16,47 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '14.x'
+      # - name: Setup Node
+      #   uses: actions/setup-node@v1
+      #   with:
+      #     node-version: '14.x'
 
-      - name: Cache Dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            package-lock.json
-            detectors/node/*/node_modules
-            metapackages/*/node_modules
-            packages/*/node_modules
-            plugins/node/*/node_modules
-            plugins/web/*/node_modules
-            propagators/*/node_modules
-          key: ${{ runner.os }}-${{ matrix.container }}-${{ hashFiles('**/package.json') }}
+      # - name: Cache Dependencies
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: |
+      #       node_modules
+      #       package-lock.json
+      #       detectors/node/*/node_modules
+      #       metapackages/*/node_modules
+      #       packages/*/node_modules
+      #       plugins/node/*/node_modules
+      #       plugins/web/*/node_modules
+      #       propagators/*/node_modules
+      #     key: ${{ runner.os }}-${{ matrix.container }}-${{ hashFiles('**/package.json') }}
 
-      # Bump versions in all package.json and version.ts files
-      - name: Prepare Release
-        run: |
-          npm install
-          npm --no-git-tag-version version ${{ github.event.inputs.version }}
-          npx lerna publish ${{ github.event.inputs.version }} --skip-npm --no-git-tag-version --no-push --yes
-          npx lerna bootstrap --no-ci
+      # # Bump versions in all package.json and version.ts files
+      # - name: Prepare Release
+      #   run: |
+      #     npm install
+      #     npm --no-git-tag-version version ${{ github.event.inputs.version }}
+      #     npx lerna publish ${{ github.event.inputs.version }} --skip-npm --no-git-tag-version --no-push --yes
+      #     npx lerna bootstrap --no-ci
 
-      - name: Update Changelog
-        env:
-          GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
-        run: ./scripts/changelog-update.sh ${{ github.event.inputs.version }}
+      # - name: Update Changelog
+      #   env:
+      #     GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
+      #   run: ./scripts/changelog-update.sh ${{ github.event.inputs.version }}
 
       # Generates changelog without the "Unreleased" portion for use in release body
       - name: Generate Release Body
         id: generate-changelog
         env:
           GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "::set-output name=CHANGELOG::$(npx lerna-changelog | sed '1,3d')"
+        run: |
+          description=$(npx lerna-changelog | sed '1,3d')
+          echo $description
+          echo "::set-output name=CHANGELOG::$description"
 
       - name: Create GitHub Release
         id: make-release
@@ -64,17 +67,17 @@ jobs:
           tag_name: 'v${{ github.event.inputs.version }}'
           commitish: main
           release_name: 'v${{ github.event.inputs.version }} Release'
-          body: '${{ steps.generate-changelog.outputs.CHANGELOG }}\nHello\nWorld!'
+          body: "${{ steps.generate-changelog.outputs.CHANGELOG }}%0AHello'%0A'World!"
           draft: true
           prerelease: false
 
       # Make PR with version bumps and changelog update. Merging this PR triggers publish workflow.
       # See: https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/.github/workflows/publish.yml
-      - name: Create Release PR
-        uses: peter-evans/create-pull-request@v3
-        with:
-          branch: release/${{ github.event.inputs.version }}
-          commit-message: 'chore: ${{ github.event.inputs.version }} release proposal'
-          title: 'chore: ${{ github.event.inputs.version }} release proposal'
-          body: ${{ steps.make-release.outputs.html_url }}
-          delete-branch: true
+      # - name: Create Release PR
+      #   uses: peter-evans/create-pull-request@v3
+      #   with:
+      #     branch: release/${{ github.event.inputs.version }}
+      #     commit-message: 'chore: ${{ github.event.inputs.version }} release proposal'
+      #     title: 'chore: ${{ github.event.inputs.version }} release proposal'
+      #     body: ${{ steps.make-release.outputs.html_url }}
+      #     delete-branch: true
