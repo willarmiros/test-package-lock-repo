@@ -35,10 +35,11 @@ jobs:
             propagators/*/node_modules
           key: ${{ runner.os }}-${{ matrix.container }}-${{ hashFiles('**/package.json') }}
 
-      # Bump versions in all package.json
+      # Bump versions in all package.json and version.ts files
       - name: Prepare Release
         run: |
           npm install
+          npm --no-git-tag-version version ${{ github.event.inputs.version }}
           npx lerna publish ${{ github.event.inputs.version }} --skip-npm --no-git-tag-version --no-push --yes
           npx lerna bootstrap --no-ci
 
