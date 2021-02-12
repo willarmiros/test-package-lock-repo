@@ -56,7 +56,19 @@ jobs:
         run: |
           description=$(npx lerna-changelog | sed '1,3d')
           echo $description
+          description="${description//'%'/'%25'}"
+          description="${description//$'\n'/'%0A'}"
+          description="${description//$'\r'/'%0D'}"
+          echo $description
           echo "::set-output name=CHANGELOG::$description"
+      # - name: Generate Release Body
+      #   id: generate-changelog
+      #   env:
+      #     GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     description=$(npx lerna-changelog | sed '1,3d')
+      #     echo $description
+      #     echo "::set-output name=CHANGELOG::$description"
 
       - name: Create GitHub Release
         id: make-release
