@@ -1,12 +1,12 @@
 {
   "name": "root",
   "private": true,
-  "version": "1.3.0",
+  "version": "1.4.0",
   "repository": "https://github.com/willarmiros/test-package-lock-repo",
   "devDependencies": {
     "lerna": "^3.20.2",
     "lerna-changelog": "^1.0.1",
-    "test-package-lock-repo-core": "1.3.0"
+    "test-package-lock-repo-core": "^1.4.0"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
