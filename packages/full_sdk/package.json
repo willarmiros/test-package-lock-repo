@@ -4,8 +4,16 @@
   "description": "\"Full SDK for test lerna repo\"",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "version:update": "node ../../scripts/version-update.js"
+    "test": "nyc ts-mocha -p tsconfig.json 'test/**/*.test.ts'",
+    "tdd": "npm run test -- --watch-extensions ts --watch",
+    "clean": "rimraf build/*",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "codecov": "nyc report --reporter=json && codecov -f coverage/*.json -p ../../",
+    "precompile": "tsc --version",
+    "prepare": "npm run compile",
+    "version:update": "node ../../../scripts/version-update.js",
+    "compile": "npm run version:update && tsc -p ."
   },
   "repository": {
     "type": "git",
