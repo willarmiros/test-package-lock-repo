@@ -64,7 +64,7 @@ jobs:
           tag_name: 'v${{ github.event.inputs.version }}'
           commitish: main
           release_name: 'v${{ github.event.inputs.version }} Release'
-          body: ${{ steps.generate-changelog.outputs.CHANGELOG }}
+          body: '${{ steps.generate-changelog.outputs.CHANGELOG }}\nHello\nWorld!'
           draft: true
           prerelease: false
 
