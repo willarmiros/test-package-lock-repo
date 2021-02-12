@@ -1,4 +1,4 @@
-name: Release OTel JS Contrib
+name: Create New Release PR
 on:
   workflow_dispatch:
     inputs:
