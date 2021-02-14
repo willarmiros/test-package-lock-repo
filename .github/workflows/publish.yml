@@ -13,15 +13,19 @@ jobs:
 
       # Determine if PR was a merged release PR. If so, publish the new release. Otherwise, do nothing.
       - name: Validate Release PR
-        id: validate-pr
+        id: validate_pr
         run: |
           echo ${{ github.head_ref }}
-          echo "::set-output ${{ github.head_ref }}"
-          
+          if [ $(grep -E 'release/[0-9]+\.[0-9]+\..+' <<< '${{ github.head_ref }}' ]
+          then
+            echo "::set-output name=is_release::true"
+          fi
+
+      - name: Hello World
+        if: steps.validate_pr.outputs.is_release
+        run: echo "Hello world!"
+
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      
-      - name: Hello World
-        run: echo "Hello world!"
