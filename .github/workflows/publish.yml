@@ -1,17 +1,23 @@
 name: Publish a New Release
 on:
   pull_request:
-    branches:
-      - 'release/[0-9]+.[0-9]+.*'
-      - main
+    branches: [main]
     types: [closed]
     
-
+# TODO: add condition to fast fail on non-merges and non-release PRs
 jobs:
   publish_to_npm:
     name: Publish to NPM and GitHub
     runs-on: ubuntu-latest
-    steps: 
+    steps:
+
+      # Determine if PR was a merged release PR. If so, publish the new release. Otherwise, do nothing.
+      - name: Validate Release PR
+        id: validate-pr
+        run: |
+          echo ${{ github.head_ref }}
+          echo "::set-output ${{ github.head_ref }}"
+          
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
