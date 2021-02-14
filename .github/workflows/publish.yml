@@ -17,6 +17,8 @@ jobs:
         run: |
           echo ${{ github.head_ref }}
           echo ${{ github.repository_owner }}
+          echo ${{ github.event }}
+          echo ${{ toJson(github.event) }}
           echo ${{ github.event.merged }}
           if [ $(grep -E '^release/[0-9]+\.[0-9]+\..+$' <<< '${{ github.head_ref }}') ]
           then
