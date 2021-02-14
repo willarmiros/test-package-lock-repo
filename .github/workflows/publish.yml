@@ -19,7 +19,7 @@ jobs:
           echo ${{ github.repository_owner }}
           echo ${{ github.event }}
           echo ${{ github.event.pull_request.merged }}
-          if [ $(grep -E '^release/[0-9]+\.[0-9]+\..+$' <<< '${{ github.head_ref }}') ]
+          if [ $(grep -E '^release/[0-9]+\.[0-9]+\..+$' <<< '${{ github.head_ref }}') ] && [ ${{ github.event.pull_request.merged }} ]
           then
             echo "::set-output name=is_release::true"
           fi
