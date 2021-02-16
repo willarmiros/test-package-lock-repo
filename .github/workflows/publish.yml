@@ -4,14 +4,17 @@ on:
     branches: [main]
     types: [closed]
     
-# TODO: add condition to fast fail on non-merges and non-release PRs
 jobs:
   publish_to_npm:
     name: Publish to NPM and GitHub
     runs-on: ubuntu-latest
     steps:
 
-      # Determine if PR was a merged release PR. If so, publish the new release. Otherwise, do nothing.
+      # Determine if PR was a valid merged release PR. If so, publish the new release. Otherwise, do nothing.
+      # Determines if this is a valid release PR by checking for 3 things:
+      #   1. The head (source) branch of the PR matches the expected "release/x.y.z" pattern
+      #   2. The PR has been merged, and not just closed
+      #   3. The head repo of the PR is not a fork, or in other words the PR is made from a branch within the main repo
       - name: Validate Release PR
         id: validate_pr
         run: |
@@ -19,16 +22,18 @@ jobs:
           echo ${{ github.repository_owner }}
           echo ${{ github.event }}
           echo ${{ github.event.pull_request.merged }}
-          if [ $(grep -E '^release/[0-9]+\.[0-9]+\..+$' <<< '${{ github.head_ref }}') ] && [ ${{ github.event.pull_request.merged }} ]
+          if [ $(grep -E '^release/[0-9]+\.[0-9]+\..+$' <<< '${{ github.head_ref }}') ] && [ ${{ github.event.pull_request.merged }} ] && [ ! ${{ github.event.pull_request.head.repo.fork }} ]
           then
             echo "::set-output name=is_release::true"
           fi
 
+      # All subsequent steps will no-op if a merged released PR didn't trigger this workflow
       - name: Hello World
         if: steps.validate_pr.outputs.is_release
         run: echo "Hello world!"
 
       - name: Checkout Repository
+        if: steps.validate_pr.outputs.is_release
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
