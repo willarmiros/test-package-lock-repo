@@ -11,10 +11,10 @@ jobs:
     steps:
 
       # Determine if PR was a valid merged release PR. If so, publish the new release. Otherwise, do nothing.
-      # Determines if this is a valid release PR by checking for 3 things:
+      # This is a valid release PR if the following 3 things are true:
       #   1. The head (source) branch of the PR matches the expected "release/x.y.z" pattern
-      #   2. The PR has been merged, and not just closed
-      #   3. The head repo of the PR is not a fork, or in other words the PR is made from a branch within the main repo
+      #   2. The PR has been merged, rather than closed
+      #   3. The head (source) repo of the PR is not a fork, or in other words the PR is made from a branch within the main repo
       - name: Validate Release PR
         id: validate_pr
         run: |
@@ -22,7 +22,8 @@ jobs:
           echo ${{ github.repository_owner }}
           echo ${{ github.event }}
           echo ${{ github.event.pull_request.merged }}
-          if [ $(grep -E '^release/[0-9]+\.[0-9]+\..+$' <<< '${{ github.head_ref }}') ] && [ ${{ github.event.pull_request.merged }} ] && [ ! ${{ github.event.pull_request.head.repo.fork }} ]
+          echo ${{ github.event.pull_request.head.repo.fork }}
+          if [ $(grep -E '^release/[0-9]+\.[0-9]+\..+$' <<< '${{ github.head_ref }}') ] && [ ${{ github.event.pull_request.merged }} ] && [ ${{ github.event.pull_request.head.repo.fork }} = false ]
           then
             echo "::set-output name=is_release::true"
           fi
