@@ -26,7 +26,7 @@ jobs:
             echo "::set-output name=is_release::true"
           fi
 
-      # All subsequent steps will no-op if a merged released PR didn't trigger this workflow
+      # Get release version and draft release tag from PR metadata
       - name: Get Release Metadata
         if: steps.validate_pr.outputs.is_release
         id: metadata
@@ -50,4 +50,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           allow_override: true
           draft: false
-          tag: v${{ steps.metadata.outputs.version }}
+          # tag: v${{ steps.metadata.outputs.version }}
+          tag: untagged-4bd04eb4da7bb76c044b
