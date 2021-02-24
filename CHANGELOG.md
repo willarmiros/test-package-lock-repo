@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 1.8.0
+
+
 ## 1.7.0
 
 #### :rocket: Enhancement
