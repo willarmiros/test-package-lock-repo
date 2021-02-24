@@ -27,12 +27,27 @@ jobs:
           fi
 
       # All subsequent steps will no-op if a merged released PR didn't trigger this workflow
-      - name: Hello World
+      - name: Get Release Metadata
         if: steps.validate_pr.outputs.is_release
-        run: echo "Hello world!"
+        id: metadata
+        run: |
+          version=$(cut -d'/' -f2 <<< '${{ github.head_ref }}')
+          body=${{ github.event.pull_request.body }}
+          # tag
+
+          echo "::set-output name=version::$version"
 
       - name: Checkout Repository
         if: steps.validate_pr.outputs.is_release
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - name: Publish Release
+        if: steps.validate_pr.outputs.is_release
+        uses: meeDamian/github-release@2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allow_override: true
+          draft: false
+          tag: v${{ steps.metadata.outputs.version }}
