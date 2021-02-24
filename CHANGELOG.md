@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 1.7.0
+
+#### :rocket: Enhancement
+* `core`
+  * [#14](https://github.com/willarmiros/test-package-lock-repo/pull/14) cool feature ([@willarmiros](https://github.com/willarmiros))
+* Other
+  * [#1](https://github.com/willarmiros/test-package-lock-repo/pull/1) inital setup for workflow test ([@willarmiros](https://github.com/willarmiros))
+
+#### Committers: 2
+- William Armiros ([@willarmiros](https://github.com/willarmiros))
+- [@github-actions[bot]](https://github.com/apps/github-actions)
+
 ## 1.6.0
 
 #### :rocket: Enhancement
