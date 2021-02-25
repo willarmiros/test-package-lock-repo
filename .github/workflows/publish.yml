@@ -32,9 +32,6 @@ jobs:
         id: metadata
         run: |
           version=$(cut -d'/' -f2 <<< '${{ github.head_ref }}')
-          body=${{ github.event.pull_request.body }}
-          # tag
-
           echo "::set-output name=version::$version"
 
       - name: Checkout Repository
@@ -43,36 +40,39 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Publish to NPM
+        if: steps.validate_pr.outputs.is_release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: ./scripts/publish.sh
+
       # Generates changelog without the "Unreleased" portion for use in release body
       # Newlines must be URL-encoded to render properly in the GitHub UI
-      - name: Generate Release Body
-        if: steps.validate_pr.outputs.is_release
-        id: generate-changelog
-        env:
-          GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          description=$(npx lerna-changelog | sed '1,3d')
-          description="${description//'%'/'%25'}"
-          description="${description//$'\n'/'%0A'}"
-          description="${description//$'\r'/'%0D'}"
-          echo "::set-output name=CHANGELOG::$description"
+      # - name: Generate Release Body
+      #   if: steps.validate_pr.outputs.is_release
+      #   id: generate-changelog
+      #   env:
+      #     GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     description=$(npx lerna-changelog | sed '1,3d')
+      #     description="${description//'%'/'%25'}"
+      #     description="${description//$'\n'/'%0A'}"
+      #     description="${description//$'\r'/'%0D'}"
+      #     echo "::set-output name=CHANGELOG::$description"
 
-      - name: Create GitHub Release
-        if: steps.validate_pr.outputs.is_release
-        id: make-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: 'v${{ steps.metadata.outputs.version }}'
-          commitish: main
-          release_name: 'v${{ steps.metadata.outputs.version }} Release'
-          body: "${{ steps.generate-changelog.outputs.CHANGELOG }}"
-          draft: false
-          prerelease: false
-
-      - name: Echo release
-        run: echo ${{ steps.make-release.outputs.id }}
+      # - name: Create GitHub Release
+      #   if: steps.validate_pr.outputs.is_release
+      #   id: make-release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: 'v${{ steps.metadata.outputs.version }}'
+      #     commitish: main
+      #     release_name: 'v${{ steps.metadata.outputs.version }} Release'
+      #     body: "${{ steps.generate-changelog.outputs.CHANGELOG }}"
+      #     draft: false
+      #     prerelease: false
 
       # - name: Publish Release
       #   if: steps.validate_pr.outputs.is_release
