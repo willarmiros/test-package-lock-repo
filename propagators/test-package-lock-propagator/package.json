@@ -1,0 +1,28 @@
+{
+  "name": "test-package-lock-propagator",
+  "version": "1.10.0",
+  "description": "Fake test propagator",
+  "main": "index.js",
+  "scripts": {
+    "test": "nyc ts-mocha -p tsconfig.json 'test/**/*.test.ts'",
+    "tdd": "npm run test -- --watch-extensions ts --watch",
+    "clean": "rimraf build/*",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "codecov": "nyc report --reporter=json && codecov -f coverage/*.json -p ../../",
+    "precompile": "tsc --version",
+    "prepare": "npm run compile",
+    "version:update": "node ../../scripts/version-update.js",
+    "compile": "npm run version:update && tsc -p ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willarmiros/test-package-lock-repo.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/willarmiros/test-package-lock-repo/issues"
+  },
+  "homepage": "https://github.com/willarmiros/test-package-lock-repo#readme"
+}
