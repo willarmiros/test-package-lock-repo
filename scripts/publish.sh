@@ -5,9 +5,9 @@ for path in $(cat lerna.json | jq '.packages[]'); do
   for package in $base; do
     if [ -d $package ]; then
       echo Publishing to NPM: $package
-      # pushd packages/$dir
-      # npm publish
-      # popd
+      pushd packages/$dir
+      npm publish
+      popd
     fi
   done
 done
