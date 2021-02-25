@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 1.13.0
+
+#### :rocket: (Enhancement)
+* `core`
+  * [#34](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/34) Enhanced Database Reporting for MongoDB ([@romilpunetha](https://github.com/romilpunetha))
+
+#### Committers: 1
+- Romil Punetha ([@romilpunetha](https://github.com/romilpunetha))
+
 ## 1.12.0
 
 #### :bug: (Bug Fix)
