@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 1.12.0
+
+#### :bug: (Bug Fix)
+* `core`
+  * bug(core): crash in batchspanprocessor with latest version ([@vmarchaud](https://github.com/vmarchaud))
+
+#### Committers: 3
+- Daniel Dyla ([@dyladan](https://github.com/dyladan))
+- Mark Wolff ([@markwolff](https://github.com/markwolff))
+- Valentin Marchaud ([@vmarchaud](https://github.com/vmarchaud))
+
 ## 1.11.0
 
 
