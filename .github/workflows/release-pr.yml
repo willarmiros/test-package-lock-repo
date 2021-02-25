@@ -48,34 +48,34 @@ jobs:
           GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
         run: ./scripts/changelog-update.sh ${{ github.event.inputs.version }}
 
-      # Generates changelog without the "Unreleased" portion for use in release body
-      # Newlines must be URL-encoded to render properly in the GitHub UI
-      - name: Generate Release Body
-        id: generate-changelog
-        env:
-          GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          description=$(npx lerna-changelog | sed '1,3d')
-          description="${description//'%'/'%25'}"
-          description="${description//$'\n'/'%0A'}"
-          description="${description//$'\r'/'%0D'}"
-          echo "::set-output name=CHANGELOG::$description"
+      # # Generates changelog without the "Unreleased" portion for use in release body
+      # # Newlines must be URL-encoded to render properly in the GitHub UI
+      # - name: Generate Release Body
+      #   id: generate-changelog
+      #   env:
+      #     GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     description=$(npx lerna-changelog | sed '1,3d')
+      #     description="${description//'%'/'%25'}"
+      #     description="${description//$'\n'/'%0A'}"
+      #     description="${description//$'\r'/'%0D'}"
+      #     echo "::set-output name=CHANGELOG::$description"
 
-      - name: Create GitHub Release
-        id: make-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: 'v${{ github.event.inputs.version }}'
-          commitish: main
-          release_name: 'v${{ github.event.inputs.version }} Release'
-          body: "${{ steps.generate-changelog.outputs.CHANGELOG }}"
-          draft: true
-          prerelease: false
+      # - name: Create GitHub Release
+      #   id: make-release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: 'v${{ github.event.inputs.version }}'
+      #     commitish: main
+      #     release_name: 'v${{ github.event.inputs.version }} Release'
+      #     body: "${{ steps.generate-changelog.outputs.CHANGELOG }}"
+      #     draft: true
+      #     prerelease: false
 
-      - name: Echo release
-        run: echo ${{ steps.make-release.outputs.id }}
+      # - name: Echo release
+      #   run: echo ${{ steps.make-release.outputs.id }}
 
       # Make PR with version bumps and changelog update. Merging this PR triggers publish workflow.
       # See: https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/.github/workflows/publish.yml
