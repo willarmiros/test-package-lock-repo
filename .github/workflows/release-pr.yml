@@ -57,7 +57,7 @@ jobs:
           commit-message: 'chore: ${{ github.event.inputs.version }} release proposal'
           title: 'chore: ${{ github.event.inputs.version }} release proposal'
           body: | 
-            This is an auto-generated release PR. If additional changes need to be
-            incorporated before the release, the CHANGELOG must be updated manually.
+            This is an auto-generated release PR. If additional changes need to be incorporated before the release, the CHANGELOG must be updated manually.
+            
             Merging this PR will automatically release all packages to NPM.
           delete-branch: true
