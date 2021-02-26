@@ -10,7 +10,7 @@
   ],
   "version": "1.15.0",
   "changelog": {
-    "repo": "open-telemetry/opentelemetry-js-contrib",
+    "repo": "willarmiros/test-package-lock-repo",
     "labels": {
       "breaking": ":boom: Breaking Change",
       "enhancement": ":rocket: (Enhancement)",
