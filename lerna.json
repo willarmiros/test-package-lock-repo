@@ -19,6 +19,7 @@
       "document": ":books: (Refine Doc)",
       "feature-request": ":sparkles: (Feature)"
     },
-    "cacheDir": ".changelog"
+    "cacheDir": ".changelog",
+    "ignoreCommitters": ["github-actions"]
   }
 }
