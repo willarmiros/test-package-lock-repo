@@ -74,20 +74,6 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: ./scripts/publish.sh
 
-      # Generates changelog without the "Unreleased" portion for use in release body
-      # Newlines must be URL-encoded to render properly in the GitHub UI
-      # - name: Generate Release Body
-      #   if: steps.validate_pr.outputs.is_release
-      #   id: generate-changelog
-      #   env:
-      #     GITHUB_AUTH: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     description=$(npx lerna-changelog | sed '1,3d')
-          # description="${description//'%'/'%25'}"
-          # description="${description//$'\n'/'%0A'}"
-          # description="${description//$'\r'/'%0D'}"
-          # echo "::set-output name=CHANGELOG::$description"
-
       # Parses the CHANGELOG.md file for the latest version's entry, to be used in GitHub release body
       # Assumes the CHANGELOG's first H2 entry is "Unreleased", followed by version entries
       - name: Get Release Body
@@ -96,7 +82,7 @@ jobs:
         run: |
           startline=$(sed -n '/## {{ steps.metadata.outputs.version }}/=' CHANGELOG.md)
           startline=$((startline+2))
-          endline=$(sed -n -s '/^## /=' CHANGELOG.md | head -n 3 | tail -n 1)
+          endline=$(sed -n '/^## /=' CHANGELOG.md | head -n 3 | tail -n 1)
           endline=$((endline-2))
           description=$(sed '$startline,$endline p' CHANGELOG.md)
           description="${description//'%'/'%25'}"
