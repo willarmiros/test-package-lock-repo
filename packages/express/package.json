@@ -1,5 +1,5 @@
 {
-  "name": "@armiros/test-package-lock-repo-express",
+  "name": "test-package-lock-repo-express",
   "version": "1.21.0",
   "description": "\"Test express for my lerna repo\"",
   "main": "index.js",
