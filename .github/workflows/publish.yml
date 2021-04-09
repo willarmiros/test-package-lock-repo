@@ -81,7 +81,8 @@ jobs:
         if: steps.validate_pr.outputs.is_release
         id: get-changelog
         run: |
-          startline=$(sed -n '/## {{ steps.metadata.outputs.version }}/=' CHANGELOG.md)
+          echo "Getting changelog entry for version ${{ steps.metadata.outputs.version }}"
+          startline=$(sed -n "/## ${{ steps.metadata.outputs.version }}/=" CHANGELOG.md)
           startline=$((startline+2))
           endline=$(sed -n '/^## /=' CHANGELOG.md | head -n 3 | tail -n 1)
           endline=$((endline-2))
