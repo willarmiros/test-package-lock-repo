@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 1.22.0
+
+#### :rocket: (Enhancement)
+* `core`
+  * [#46](https://github.com/willarmiros/test-package-lock-repo/pull/46) Update index.js ([@willarmiros](https://github.com/willarmiros))
+  * [#44](https://github.com/willarmiros/test-package-lock-repo/pull/44) Update index.js ([@willarmiros](https://github.com/willarmiros))
+* Other
+  * [#42](https://github.com/willarmiros/test-package-lock-repo/pull/42) Update index.js ([@willarmiros](https://github.com/willarmiros))
+
+#### Committers: 1
+- William Armiros ([@willarmiros](https://github.com/willarmiros))
+
 ## 1.21.0
 
 #### :rocket: (Enhancement)
