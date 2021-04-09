@@ -8,7 +8,7 @@
     "propagators/*",
     "detectors/node/*"
   ],
-  "version": "1.17.0",
+  "version": "1.19.0",
   "changelog": {
     "repo": "willarmiros/test-package-lock-repo",
     "labels": {
@@ -20,6 +20,8 @@
       "feature-request": ":sparkles: (Feature)"
     },
     "cacheDir": ".changelog",
-    "ignoreCommitters": ["github-actions"]
+    "ignoreCommitters": [
+      "github-actions"
+    ]
   }
 }
