@@ -72,7 +72,8 @@ jobs:
         if: steps.validate_pr.outputs.is_release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: ./scripts/publish.sh
+        # run: ./scripts/publish.sh
+        run: npx lerna publish --no-push --no-git-tag-version --yes
 
       # Parses the CHANGELOG.md file for the latest version's entry, to be used in GitHub release body
       # Assumes the CHANGELOG's first H2 entry is "Unreleased", followed by version entries
