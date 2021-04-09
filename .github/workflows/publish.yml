@@ -85,7 +85,7 @@ jobs:
           startline=$((startline+2))
           endline=$(sed -n '/^## /=' CHANGELOG.md | head -n 3 | tail -n 1)
           endline=$((endline-2))
-          description=$(sed '$startline,$endline p' CHANGELOG.md)
+          description=$(sed -n "$startline,$endline p" CHANGELOG.md)
           description="${description//'%'/'%25'}"
           description="${description//$'\n'/'%0A'}"
           description="${description//$'\r'/'%0D'}"
