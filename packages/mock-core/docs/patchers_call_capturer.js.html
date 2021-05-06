@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: patchers/call_capturer.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: patchers/call_capturer.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>var fs = require('fs');
+
+var logger = require('../logger');
+var whitelist = require('../resources/aws_whitelist.json');
+
+var paramTypes = {
+  REQ_DESC: 'request_descriptors',
+  REQ_PARAMS: 'request_parameters',
+  RES_DESC: 'response_descriptors',
+  RES_PARAMS: 'response_parameters'
+};
+
+/**
+ * Represents a set of AWS services, operations and keys or params to capture.
+ * @constructor
+ * @param {string|Object} [source] - The location or source JSON object of the custom AWS whitelist file. If none is provided, the default file will be used.
+ */
+
+function CallCapturer (source) {
+  this.init(source);
+}
+
+CallCapturer.prototype.init = function init(source) {
+  if (source) {
+    if (typeof source === 'string') {
+      logger.getLogger().info('Using custom AWS whitelist file: ' + source);
+      this.services = loadWhitelist(JSON.parse(fs.readFileSync(source, 'utf8')));
+    } else {
+      logger.getLogger().info('Using custom AWS whitelist source.');
+      this.services = loadWhitelist(source);
+    }
+  } else
+    this.services = whitelist.services;
+};
+
+CallCapturer.prototype.append = function append(source) {
+  var newServices = {};
+
+  if (typeof source === 'string') {
+    logger.getLogger().info('Appending AWS whitelist with custom file: ' + source);
+    newServices = loadWhitelist(JSON.parse(fs.readFileSync(source, 'utf8')));
+  } else {
+    logger.getLogger().info('Appending AWS whitelist with a custom source.');
+    newServices = loadWhitelist(source);
+  }
+
+  for (var attribute in newServices) { this.services[attribute] = newServices[attribute]; }
+};
+
+CallCapturer.prototype.capture = function capture(serviceName, response) {
+  var operation = response.request.operation;
+  var call = this.services[serviceName] !== undefined ? this.services[serviceName].operations[operation] : null;
+
+  if (call === null) {
+    logger.getLogger().debug('Call "' + serviceName + '.' + operation + '" is not whitelisted for additional data capturing. Ignoring.');
+    return;
+  }
+
+  var dataCaptured = {};
+
+  for (var paramType in call) {
+    var params = call[paramType];
+
+    if (paramType === paramTypes.REQ_PARAMS) {
+      captureCallParams(params, response.request.params, dataCaptured);
+    } else if (paramType === paramTypes.REQ_DESC) {
+      captureDescriptors(params, response.request.params, dataCaptured);
+    } else if (paramType === paramTypes.RES_PARAMS) {
+      if (response.data) { captureCallParams(params, response.data, dataCaptured); }
+    } else if (paramType === paramTypes.RES_DESC) {
+      if (response.data) { captureDescriptors(params, response.data, dataCaptured); }
+    } else {
+      logger.getLogger().error('Unknown parameter type "' + paramType + '". Must be "request_descriptors", "response_descriptors", ' +
+        '"request_parameters" or "response_parameters".');
+    }
+  }
+
+  return dataCaptured;
+};
+
+function captureCallParams(params, call, data) {
+  params.forEach(function(param) {
+    if (typeof call[param] !== 'undefined') {
+      var formatted = toSnakeCase(param);
+      this[formatted] = call[param];
+    }
+  }, data);
+}
+
+function captureDescriptors(descriptors, params, data) {
+  for (var paramName in descriptors) {
+    var attributes = descriptors[paramName];
+
+    if (typeof params[paramName] !== 'undefined') {
+      var paramData;
+
+      if (attributes.list &amp;&amp; attributes.get_count)
+        paramData = params[paramName] ? params[paramName].length : 0;
+      else
+        paramData = attributes.get_keys === true ? Object.keys(params[paramName]) : params[paramName];
+
+      if (typeof attributes.rename_to === 'string') {
+        data[attributes.rename_to] = paramData;
+      } else {
+        var formatted = toSnakeCase(paramName);
+        data[formatted] = paramData;
+      }
+    }
+  }
+}
+
+function toSnakeCase(param) {
+  if (param === 'IPAddress')
+    return 'ip_address';
+  else
+    return param.split(/(?=[A-Z])/).join('_').toLowerCase();
+}
+
+function loadWhitelist(source) {
+  var doc = source;
+
+  if (doc.services === undefined)
+    throw new Error('Document formatting is incorrect. Expecting "services" param.');
+
+  return doc.services;
+}
+
+module.exports = CallCapturer;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-appendAWSWhitelist.html">appendAWSWhitelist</a></li><li><a href="module-aws_p.html">aws_p</a></li><li><a href="module-capture.html">capture</a></li><li><a href="module-context_utils.html">context_utils</a></li><li><a href="module-DaemonConfig.html">DaemonConfig</a></li><li><a href="module-DefaultSampler.html">DefaultSampler</a></li><li><a href="module-http_p.html">http_p</a></li><li><a href="module-LocalSampler.html">LocalSampler</a></li><li><a href="module-mw_utils.html">mw_utils</a></li><li><a href="module-promise_p.html">promise_p</a></li><li><a href="module-RuleCache.html">RuleCache</a></li><li><a href="module-RulePoller.html">RulePoller</a></li><li><a href="module-SegmentEmitter.html">SegmentEmitter</a></li><li><a href="module-ServiceConnector.html">ServiceConnector</a></li><li><a href="module-setAWSWhitelist.html">setAWSWhitelist</a></li><li><a href="module-TargetPoller.html">TargetPoller</a></li><li><a href="module-utils.html">utils</a></li></ul><h3>Namespaces</h3><ul><li><a href="AWSXRay.html">AWSXRay</a></li><li><a href="AWSXRay.database.html">database</a></li><li><a href="AWSXRay.plugins.html">plugins</a></li></ul><h3>Classes</h3><ul><li><a href="Aws.html">Aws</a></li><li><a href="CallCapturer.html">CallCapturer</a></li><li><a href="CapturedException.html">CapturedException</a></li><li><a href="IncomingRequestData.html">IncomingRequestData</a></li><li><a href="LocalReservoir.html">LocalReservoir</a></li><li><a href="RemoteRequestData.html">RemoteRequestData</a></li><li><a href="Reservoir.html">Reservoir</a></li><li><a href="SamplingRule.html">SamplingRule</a></li><li><a href="Segment.html">Segment</a></li><li><a href="SqlData.html">SqlData</a></li><li><a href="Subsegment.html">Subsegment</a></li><li><a href="TraceID.html">TraceID</a></li></ul><h3>Global</h3><ul><li><a href="global.html#BatchingTemporarySocket">BatchingTemporarySocket</a></li><li><a href="global.html#batchSendData">batchSendData</a></li><li><a href="global.html#executeSendData">executeSendData</a></li><li><a href="global.html#getToken">getToken</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#sendMessage">sendMessage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Tue Apr 06 2021 21:32:20 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+<script src="/SdkStatic/sdk-priv.js" async="true"></script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: patchers/aws_p.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: patchers/aws_p.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Capture module.
+ * @module aws_p
+ */
+
+var semver = require('semver');
+
+var Aws = require('../segments/attributes/aws');
+var contextUtils = require('../context_utils');
+var Utils = require('../utils');
+
+var logger = require('../logger');
+
+var minVersion = '2.7.15';
+
+var throttledErrorDefault = function throttledErrorDefault() {
+  return false; // If the customer doesn't provide an aws-sdk with a throttled error function, we can't make assumptions.
+};
+
+/**
+ * Configures the AWS SDK to automatically capture information for the segment.
+ * All created clients will automatically be captured.  See 'captureAWSClient'
+ * for additional details.
+ * @param {AWS} awssdk - The Javascript AWS SDK.
+ * @alias module:aws_p.captureAWS
+ * @returns {AWS} 
+ * @see https://github.com/aws/aws-sdk-js
+ */
+
+var captureAWS = function captureAWS(awssdk) {
+  if (!semver.gte(awssdk.VERSION, minVersion))
+    throw new Error ('AWS SDK version ' + minVersion + ' or greater required.');
+
+  for (var prop in awssdk) {
+    if (awssdk[prop].serviceIdentifier) {
+      var Service = awssdk[prop];
+      Service.prototype.customizeRequests(captureAWSRequest);
+    }
+  }
+
+  return awssdk;
+};
+
+/**
+ * Configures any AWS Client instance to automatically capture information for the segment.
+ * For manual mode, a param with key called 'Segment' is required as a part of the AWS
+ * call paramaters, and must reference a Segment or Subsegment object.
+ * @param {AWS.Service} service - An instance of a AWS service to wrap.
+ * @alias module:aws_p.captureAWSClient
+ * @returns {AWS.Service}
+ * @see https://github.com/aws/aws-sdk-js
+ */
+
+var captureAWSClient = function captureAWSClient(service) {
+  service.customizeRequests(captureAWSRequest);
+  return service;
+};
+
+function captureAWSRequest(req) {
+  var parent = contextUtils.resolveSegment(contextUtils.resolveManualSegmentParams(req.params));
+
+  if (!parent) {
+    var output = this.serviceIdentifier + '.' + req.operation;
+
+    if (!contextUtils.isAutomaticMode()) {
+      logger.getLogger().info('Call ' + output + ' requires a segment object' +
+        ' on the request params as "XRaySegment" for tracing in manual mode. Ignoring.');
+    } else {
+      logger.getLogger().info('Call ' + output +
+        ' is missing the sub/segment context for automatic mode. Ignoring.');
+    }
+    return req;
+  }
+
+  var throttledError = this.throttledError || throttledErrorDefault;
+
+  var stack = (new Error()).stack;
+  var subsegment = parent.addNewSubsegment(this.serviceIdentifier);
+  var traceId = parent.segment ? parent.segment.trace_id : parent.trace_id;
+  
+  var buildListener = function(req) {
+    req.httpRequest.headers['X-Amzn-Trace-Id'] = 'Root=' + traceId + ';Parent=' + subsegment.id +
+      ';Sampled=' + (subsegment.segment.notTraced ? '0' : '1');
+  };
+
+  var completeListener = function(res) {
+    subsegment.addAttribute('namespace', 'aws');
+    subsegment.addAttribute('aws', new Aws(res, subsegment.name));
+
+    var httpRes = res.httpResponse;
+
+    if (httpRes) {
+      subsegment.addAttribute('http', new HttpResponse(httpRes));
+
+      if (httpRes.statusCode === 429 || (res.error &amp;&amp; throttledError(res.error)))
+        subsegment.addThrottleFlag();
+    }
+
+    if (res.error) {
+      var err = { message: res.error.message, name: res.error.code, stack: stack };
+
+      if (httpRes &amp;&amp; httpRes.statusCode) {
+        if (Utils.getCauseTypeFromHttpStatus(httpRes.statusCode) == 'error') {
+          subsegment.addErrorFlag();
+        }
+        subsegment.close(err, true);
+      }
+      else
+        subsegment.close(err);
+    } else {
+      if (httpRes &amp;&amp; httpRes.statusCode) {
+        var cause = Utils.getCauseTypeFromHttpStatus(httpRes.statusCode);
+
+        if (cause)
+          subsegment[cause] = true;
+      }
+      subsegment.close();
+    }
+  };
+
+  req.on('beforePresign', function(req) {
+    // Only the AWS Presigner triggers this event,
+    // so we can rely on this event to notify us when
+    // a request is for a presigned url
+    parent.removeSubsegment(subsegment);
+    parent.decrementCounter();
+    req.removeListener('build', buildListener);
+    req.removeListener('complete', completeListener);
+  });
+
+  req.on('build', buildListener).on('complete', completeListener);
+
+  if (!req.__send) {
+    req.__send = req.send;
+
+    req.send = function(callback) {
+      if (contextUtils.isAutomaticMode()) {
+        var session = contextUtils.getNamespace();
+
+        session.run(function() {
+          contextUtils.setSegment(subsegment);
+          req.__send(callback);
+        });
+      } else {
+        req.__send(callback);
+      }
+    };
+  }
+}
+
+function HttpResponse(res) {
+  this.init(res);
+}
+
+HttpResponse.prototype.init = function init(res) {
+  this.response = {
+    status: res.statusCode || '',
+  };
+
+  if (res.headers &amp;&amp; res.headers['content-length'])
+    this.response.content_length = res.headers['content-length'];
+};
+
+module.exports.captureAWSClient = captureAWSClient;
+module.exports.captureAWS = captureAWS;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-appendAWSWhitelist.html">appendAWSWhitelist</a></li><li><a href="module-aws_p.html">aws_p</a></li><li><a href="module-capture.html">capture</a></li><li><a href="module-context_utils.html">context_utils</a></li><li><a href="module-DaemonConfig.html">DaemonConfig</a></li><li><a href="module-DefaultSampler.html">DefaultSampler</a></li><li><a href="module-http_p.html">http_p</a></li><li><a href="module-LocalSampler.html">LocalSampler</a></li><li><a href="module-mw_utils.html">mw_utils</a></li><li><a href="module-promise_p.html">promise_p</a></li><li><a href="module-RuleCache.html">RuleCache</a></li><li><a href="module-RulePoller.html">RulePoller</a></li><li><a href="module-SegmentEmitter.html">SegmentEmitter</a></li><li><a href="module-ServiceConnector.html">ServiceConnector</a></li><li><a href="module-setAWSWhitelist.html">setAWSWhitelist</a></li><li><a href="module-TargetPoller.html">TargetPoller</a></li><li><a href="module-utils.html">utils</a></li></ul><h3>Namespaces</h3><ul><li><a href="AWSXRay.html">AWSXRay</a></li><li><a href="AWSXRay.database.html">database</a></li><li><a href="AWSXRay.plugins.html">plugins</a></li></ul><h3>Classes</h3><ul><li><a href="Aws.html">Aws</a></li><li><a href="CallCapturer.html">CallCapturer</a></li><li><a href="CapturedException.html">CapturedException</a></li><li><a href="IncomingRequestData.html">IncomingRequestData</a></li><li><a href="LocalReservoir.html">LocalReservoir</a></li><li><a href="RemoteRequestData.html">RemoteRequestData</a></li><li><a href="Reservoir.html">Reservoir</a></li><li><a href="SamplingRule.html">SamplingRule</a></li><li><a href="Segment.html">Segment</a></li><li><a href="SqlData.html">SqlData</a></li><li><a href="Subsegment.html">Subsegment</a></li><li><a href="TraceID.html">TraceID</a></li></ul><h3>Global</h3><ul><li><a href="global.html#BatchingTemporarySocket">BatchingTemporarySocket</a></li><li><a href="global.html#batchSendData">batchSendData</a></li><li><a href="global.html#executeSendData">executeSendData</a></li><li><a href="global.html#getToken">getToken</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#sendMessage">sendMessage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Tue Apr 06 2021 21:32:20 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+<script src="/SdkStatic/sdk-priv.js" async="true"></script>
+</body>
+</html>

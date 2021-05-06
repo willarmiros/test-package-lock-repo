@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: env/aws_lambda.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: env/aws_lambda.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>var contextUtils = require('../context_utils');
+var mwUtils = require('../middleware/mw_utils');
+var LambdaUtils = require('../utils').LambdaUtils;
+var Segment = require('../segments/segment');
+var SegmentEmitter = require('../segment_emitter');
+var SegmentUtils = require('../segments/segment_utils');
+
+var logger = require('../logger');
+const TraceID = require('../segments/attributes/trace_id');
+
+/**
+ * @namespace
+ * @ignore
+ */
+var xAmznTraceIdPrev = null;
+
+/**
+* Used to initialize segments on AWS Lambda with extra data from the context.
+*/
+module.exports.init = function init() {
+  contextUtils.enableManualMode = function() {
+    logger.getLogger().warn('AWS Lambda does not support AWS X-Ray manual mode.');
+  };
+
+  SegmentEmitter.disableReusableSocket();
+  SegmentUtils.setStreamingThreshold(0);
+
+  /** 
+   * Disabling all centralized sampling in Lambda environments. The sampling decisions would be
+   * uselessly applied to the facade segment, and the sampling pollers were causing errors.
+   * 
+   * See: https://github.com/aws/aws-xray-sdk-node/issues/217
+   */
+  logger.getLogger().info('Disabling centralized sampling in Lambda environment.');
+  mwUtils.disableCentralizedSampling();
+
+  var namespace = contextUtils.getNamespace();
+  namespace.enter(namespace.createContext());
+  contextUtils.setSegment(facadeSegment());
+};
+
+var facadeSegment = function facadeSegment() {
+  var segment = new Segment('facade');
+  var whitelistFcn = ['addNewSubsegment', 'addSubsegment', 'removeSubsegment', 'toString'];
+  var silentFcn = ['incrementCounter', 'decrementCounter', 'isClosed', 'close', 'format', 'flush'];
+  var xAmznTraceId = process.env._X_AMZN_TRACE_ID;
+
+  for (var key in segment) {
+    if (typeof segment[key] === 'function' &amp;&amp; whitelistFcn.indexOf(key) === -1) {
+      if (silentFcn.indexOf(key) === -1) {
+        segment[key] = (function() {
+          var func = key;
+          return function facade() {
+            logger.getLogger().warn('Function "' + func + '" cannot be called on an AWS Lambda segment. Please use a subsegment to record data.');
+            return;
+          };
+        })();
+      } else {
+        segment[key] = function facade() { return; };
+      }
+    }
+  }
+
+  segment.trace_id = TraceID.Invalid().toString();
+  segment.isClosed = function() { return true; };
+  segment.in_progress = false;
+  segment.counter = 1;
+  segment.notTraced = true;
+  segment.facade = true;
+
+  segment.reset = function reset() {
+    this.trace_id = TraceID.Invalid().toString();
+    this.id = '00000000';
+    delete this.subsegments;
+    this.notTraced = true;
+  };
+
+  segment.resolveLambdaTraceData = function resolveLambdaTraceData() {
+    var xAmznLambda = process.env._X_AMZN_TRACE_ID;
+
+    if (xAmznLambda) {
+
+      // This check resets the trace data whenever a new trace header is read to not leak data between invocations
+      if (xAmznLambda != xAmznTraceIdPrev) {
+        this.reset();
+
+        if (LambdaUtils.populateTraceData(segment, xAmznLambda))
+          xAmznTraceIdPrev = xAmznLambda;
+      }
+    }
+    else {
+      this.reset();
+      contextUtils.contextMissingStrategy.contextMissing('Missing AWS Lambda trace data for X-Ray. ' +
+          'Ensure Active Tracing is enabled and no subsegments are created outside the function handler.');
+    }
+  };
+
+  // Test for valid trace data during SDK startup. It's likely we're still in the cold-start portion of the
+  // code at this point and a valid trace header has not been set
+  if (LambdaUtils.validTraceData(xAmznTraceId)) {
+    if (LambdaUtils.populateTraceData(segment, xAmznTraceId))
+      xAmznTraceIdPrev = xAmznTraceId;
+  }
+
+  return segment;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-appendAWSWhitelist.html">appendAWSWhitelist</a></li><li><a href="module-aws_p.html">aws_p</a></li><li><a href="module-capture.html">capture</a></li><li><a href="module-context_utils.html">context_utils</a></li><li><a href="module-DaemonConfig.html">DaemonConfig</a></li><li><a href="module-DefaultSampler.html">DefaultSampler</a></li><li><a href="module-http_p.html">http_p</a></li><li><a href="module-LocalSampler.html">LocalSampler</a></li><li><a href="module-mw_utils.html">mw_utils</a></li><li><a href="module-promise_p.html">promise_p</a></li><li><a href="module-RuleCache.html">RuleCache</a></li><li><a href="module-RulePoller.html">RulePoller</a></li><li><a href="module-SegmentEmitter.html">SegmentEmitter</a></li><li><a href="module-ServiceConnector.html">ServiceConnector</a></li><li><a href="module-setAWSWhitelist.html">setAWSWhitelist</a></li><li><a href="module-TargetPoller.html">TargetPoller</a></li><li><a href="module-utils.html">utils</a></li></ul><h3>Namespaces</h3><ul><li><a href="AWSXRay.html">AWSXRay</a></li><li><a href="AWSXRay.database.html">database</a></li><li><a href="AWSXRay.plugins.html">plugins</a></li></ul><h3>Classes</h3><ul><li><a href="Aws.html">Aws</a></li><li><a href="CallCapturer.html">CallCapturer</a></li><li><a href="CapturedException.html">CapturedException</a></li><li><a href="IncomingRequestData.html">IncomingRequestData</a></li><li><a href="LocalReservoir.html">LocalReservoir</a></li><li><a href="RemoteRequestData.html">RemoteRequestData</a></li><li><a href="Reservoir.html">Reservoir</a></li><li><a href="SamplingRule.html">SamplingRule</a></li><li><a href="Segment.html">Segment</a></li><li><a href="SqlData.html">SqlData</a></li><li><a href="Subsegment.html">Subsegment</a></li><li><a href="TraceID.html">TraceID</a></li></ul><h3>Global</h3><ul><li><a href="global.html#BatchingTemporarySocket">BatchingTemporarySocket</a></li><li><a href="global.html#batchSendData">batchSendData</a></li><li><a href="global.html#executeSendData">executeSendData</a></li><li><a href="global.html#getToken">getToken</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#sendMessage">sendMessage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Tue Apr 06 2021 21:32:20 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+<script src="/SdkStatic/sdk-priv.js" async="true"></script>
+</body>
+</html>

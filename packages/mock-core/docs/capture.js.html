@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: capture.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: capture.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Capture module.
+ * @module capture
+ */
+
+var contextUtils = require('./context_utils');
+
+var logger = require('./logger');
+
+/**
+ * Wrap to automatically capture information for the segment.
+ * @param {string} name - The name of the new subsegment.
+ * @param {function} fcn - The function context to wrap. Can take a single 'subsegment' argument.
+ * @param {Segment|Subsegment} [parent] - The parent for the new subsegment, for manual mode.
+ * @alias module:capture.captureFunc
+ * @return {*} - Returns the result if any by executing the provided function.
+ */
+
+var captureFunc = function captureFunc(name, fcn, parent) {
+  validate(name, fcn);
+
+  var current, executeFcn;
+
+  var parentSeg = contextUtils.resolveSegment(parent);
+
+  if (!parentSeg) {
+    logger.getLogger().warn('Failed to capture function.');
+    return fcn();
+  }
+
+  current = parentSeg.addNewSubsegment(name);
+  executeFcn = captureFcn(fcn, current);
+
+  try {
+    const response = executeFcn(current);
+    current.close();
+    return response;
+  } catch (e) {
+    current.close(e);
+    throw(e);
+  }
+};
+
+/**
+ * Wrap to automatically capture information for the sub/segment.  You must close the segment
+ * manually from within the function.
+ * @param {string} name - The name of the new subsegment.
+ * @param {function} fcn - The function context to wrap. Must take a single 'subsegment' argument and call 'subsegment.close([optional error])' when the async function completes.
+ * @param {Segment|Subsegment} [parent] - The parent for the new subsegment, for manual mode.
+ * @alias module:capture.captureAsyncFunc
+ * @return {*} - Returns a promise by executing the provided async function.
+ */
+
+var captureAsyncFunc = function captureAsyncFunc(name, fcn, parent) {
+  validate(name, fcn);
+
+  var current, executeFcn;
+  var parentSeg = contextUtils.resolveSegment(parent);
+
+  if (!parentSeg) {
+    logger.getLogger().warn('Failed to capture async function.');
+    return fcn();
+  }
+
+  current = parentSeg.addNewSubsegment(name);
+  executeFcn = captureFcn(fcn, current);
+
+  try {
+    return executeFcn(current);
+  } catch (e) {
+    current.close(e);
+    throw(e);
+  }
+};
+
+/**
+ * Wrap to automatically capture information for the sub/segment. This wraps the callback and returns a function.
+ * when executed, all arguments are passed through accordingly. An additional argument is appended to gain access to the newly created subsegment.
+ * For this reason, always call the captured callback with the full list of arguments.
+ * @param {string} name - The name of the new subsegment.
+ * @param {function} fcn - The function context to wrap. Can take a single 'subsegment' argument.
+ * @param {Segment|Subsegment} [parent] - The parent for the new subsegment, for manual mode.
+ * @alias module:capture.captureCallbackFunc
+ */
+
+var captureCallbackFunc = function captureCallbackFunc(name, fcn, parent) {
+  validate(name, fcn);
+
+  var base = contextUtils.resolveSegment(parent);
+
+  if (!base) {
+    logger.getLogger().warn('Failed to capture callback function.');
+    return fcn;
+  }
+
+  base.incrementCounter();
+
+  return function() {
+    var parentSeg = contextUtils.resolveSegment(parent);
+    var args = Array.prototype.slice.call(arguments);
+
+    captureFunc(name, fcn.bind.apply(fcn, [null].concat(args)), parentSeg);
+
+    base.decrementCounter();
+  }.bind(this);
+};
+
+function captureFcn(fcn, current) {
+  var executeFcn;
+
+  if (contextUtils.isAutomaticMode()) {
+    var session = contextUtils.getNamespace();
+
+    var contextFcn = function() {
+      var value;
+
+      session.run(function() {
+        contextUtils.setSegment(current);
+        value = fcn(current);
+      });
+      return value;
+    };
+
+    executeFcn = contextFcn;
+  } else {
+    executeFcn = fcn;
+  }
+
+  return executeFcn;
+}
+
+function validate(name, fcn) {
+  var error;
+
+  if (!name || typeof name !== 'string') {
+    error = 'Param "name" must be a non-empty string.';
+    logger.getLogger().error(error);
+    throw new Error(error);
+  } else if (typeof fcn !== 'function') {
+    error = 'Param "fcn" must be a function.';
+    logger.getLogger().error(error);
+    throw new Error(error);
+  }
+}
+
+module.exports.captureFunc = captureFunc;
+module.exports.captureAsyncFunc = captureAsyncFunc;
+module.exports.captureCallbackFunc = captureCallbackFunc;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-appendAWSWhitelist.html">appendAWSWhitelist</a></li><li><a href="module-aws_p.html">aws_p</a></li><li><a href="module-capture.html">capture</a></li><li><a href="module-context_utils.html">context_utils</a></li><li><a href="module-DaemonConfig.html">DaemonConfig</a></li><li><a href="module-DefaultSampler.html">DefaultSampler</a></li><li><a href="module-http_p.html">http_p</a></li><li><a href="module-LocalSampler.html">LocalSampler</a></li><li><a href="module-mw_utils.html">mw_utils</a></li><li><a href="module-promise_p.html">promise_p</a></li><li><a href="module-RuleCache.html">RuleCache</a></li><li><a href="module-RulePoller.html">RulePoller</a></li><li><a href="module-SegmentEmitter.html">SegmentEmitter</a></li><li><a href="module-ServiceConnector.html">ServiceConnector</a></li><li><a href="module-setAWSWhitelist.html">setAWSWhitelist</a></li><li><a href="module-TargetPoller.html">TargetPoller</a></li><li><a href="module-utils.html">utils</a></li></ul><h3>Namespaces</h3><ul><li><a href="AWSXRay.html">AWSXRay</a></li><li><a href="AWSXRay.database.html">database</a></li><li><a href="AWSXRay.plugins.html">plugins</a></li></ul><h3>Classes</h3><ul><li><a href="Aws.html">Aws</a></li><li><a href="CallCapturer.html">CallCapturer</a></li><li><a href="CapturedException.html">CapturedException</a></li><li><a href="IncomingRequestData.html">IncomingRequestData</a></li><li><a href="LocalReservoir.html">LocalReservoir</a></li><li><a href="RemoteRequestData.html">RemoteRequestData</a></li><li><a href="Reservoir.html">Reservoir</a></li><li><a href="SamplingRule.html">SamplingRule</a></li><li><a href="Segment.html">Segment</a></li><li><a href="SqlData.html">SqlData</a></li><li><a href="Subsegment.html">Subsegment</a></li><li><a href="TraceID.html">TraceID</a></li></ul><h3>Global</h3><ul><li><a href="global.html#BatchingTemporarySocket">BatchingTemporarySocket</a></li><li><a href="global.html#batchSendData">batchSendData</a></li><li><a href="global.html#executeSendData">executeSendData</a></li><li><a href="global.html#getToken">getToken</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#sendMessage">sendMessage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Tue Apr 06 2021 21:32:20 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+<script src="/SdkStatic/sdk-priv.js" async="true"></script>
+</body>
+</html>
