@@ -9,8 +9,7 @@
     "Moritz Onken <onken@netcubed.de>"
   ],
   "files": [
-    "dist/lib/**/*.js",
-    "dist/lib/**/*.d.ts",
+    "dist/lib/**/*",
     "LICENSE",
     "README.md"
   ],
