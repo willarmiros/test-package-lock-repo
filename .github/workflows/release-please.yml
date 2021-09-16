@@ -16,7 +16,7 @@ jobs:
           default-branch: main
 
       - name: Debugging
-        run: echo "outputs are ${{ steps.release.outputs }}"
+        run: echo "outputs are ${{ toJson(steps.release) }}"
 
       # The logic below handles the npm publication:
       - name: Checkout Repository
