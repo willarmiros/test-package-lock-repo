@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.32.0](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-repo-express-v1.31.0...test-package-lock-repo-express-v1.32.0) (2021-09-16)
+
+
+### Features
+
+* haha ([db7e77b](https://www.github.com/willarmiros/test-package-lock-repo/commit/db7e77bedb308ebf0b30d759cee0add226a7e908))
+
 ## [1.31.0](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-repo-express-v1.30.0...test-package-lock-repo-express-v1.31.0) (2021-09-16)
 
 

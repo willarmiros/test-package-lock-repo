@@ -1,1 +1,1 @@
-{"packages/core":"1.30.0","packages/express":"1.31.0","packages/full_sdk":"1.29.3","plugins/node/test-package-lock-node-plugin":"1.29.0","plugins/web/test-package-lock-web-plugin":"1.30.0","propagators/test-package-lock-propagator":"1.32.0"}
+{"packages/core":"1.30.0","packages/express":"1.32.0","packages/full_sdk":"1.29.4","plugins/node/test-package-lock-node-plugin":"1.29.0","plugins/web/test-package-lock-web-plugin":"1.30.0","propagators/test-package-lock-propagator":"1.32.0"}
