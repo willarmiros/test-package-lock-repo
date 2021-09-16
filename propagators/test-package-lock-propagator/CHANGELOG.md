@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.33.0](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-propagator-v1.32.0...test-package-lock-propagator-v1.33.0) (2021-09-16)
+
+
+### Features
+
+* bump ([84d0353](https://www.github.com/willarmiros/test-package-lock-repo/commit/84d0353bfaf96e3db78b5ddaa94859f4654e6617))
+
 ## [1.32.0](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-propagator-v1.31.0...test-package-lock-propagator-v1.32.0) (2021-09-16)
 
 
