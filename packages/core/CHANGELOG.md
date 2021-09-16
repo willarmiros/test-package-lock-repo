@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.33.0](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-repo-core-v1.32.0...test-package-lock-repo-core-v1.33.0) (2021-09-16)
+
+
+### Features
+
+* hey patrick ([dc086e4](https://www.github.com/willarmiros/test-package-lock-repo/commit/dc086e476a8c52fd77bebd5146bbec2fac391bc7))
+
 ## [1.32.0](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-repo-core-v1.31.0...test-package-lock-repo-core-v1.32.0) (2021-09-16)
 
 
