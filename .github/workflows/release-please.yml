@@ -15,9 +15,6 @@ jobs:
           token: ${{secrets.RELEASE_PR_TOKEN}}
           default-branch: main
 
-      - name: Debugging
-        run: echo "outputs are ${{ toJson(steps.release) }}"
-
       # The logic below handles the npm publication:
       - name: Checkout Repository
         if: ${{ steps.release.outputs.releases_created }}
