@@ -1,0 +1,13 @@
+{
+  "bootstrap-sha": "1983cb669ef617f03c50be2e9f46f4caaf781442",
+  "plugins": ["node-workspace"],
+  "bump-minor-pre-major": true,
+  "packages": {
+    "packages/core": {},
+  "packages/express": {},
+  "packages/full_sdk": {},
+  "plugins/node/test-package-lock-node-plugin": {},
+  "plugins/web/test-package-lock-web-plugin": {},
+  "propagators/test-package-lock-propagator": {}
+  }
+}
