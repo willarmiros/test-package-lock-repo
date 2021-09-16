@@ -1,5 +1,14 @@
 # Changelog
 
+### [1.32.3](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-repo-express-v1.32.2...test-package-lock-repo-express-v1.32.3) (2021-09-16)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * test-package-lock-repo-core bumped from ^1.32.0 to ^1.33.0
+
 ### [1.32.2](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-repo-express-v1.32.1...test-package-lock-repo-express-v1.32.2) (2021-09-16)
 
 
