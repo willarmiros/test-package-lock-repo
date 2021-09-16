@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.0](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-repo-express-v1.30.0...test-package-lock-repo-express-v1.31.0) (2021-09-16)
+
+
+### Features
+
+* bump express ([63c297d](https://www.github.com/willarmiros/test-package-lock-repo/commit/63c297df804885d57440b0ba9a8f07edf9246a31))
+
 ## [1.30.0](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-repo-express-v1.29.1...test-package-lock-repo-express-v1.30.0) (2021-09-16)
 
 
