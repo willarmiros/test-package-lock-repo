@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.32.0](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-repo-core-v1.31.0...test-package-lock-repo-core-v1.32.0) (2021-09-16)
+
+
+### Features
+
+* bauer ([1e94c98](https://www.github.com/willarmiros/test-package-lock-repo/commit/1e94c986eff238844e02e43b825b52fd47d84898))
+
 ## [1.31.0](https://www.github.com/willarmiros/test-package-lock-repo/compare/test-package-lock-repo-core-v1.30.0...test-package-lock-repo-core-v1.31.0) (2021-09-16)
 
 
